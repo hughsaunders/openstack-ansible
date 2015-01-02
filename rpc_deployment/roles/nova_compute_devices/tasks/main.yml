@@ -65,3 +65,13 @@
     state: "link"
   when: is_metal == true
 
+- name: Create nova log dir
+  file:
+    path: "/var/log/nova"
+    state: directory
+    group: adm
+    owner: "{{ system_user|default('root') }}"
+    mode: 750
+    recurse: no
+  when: is_metal == false
+
