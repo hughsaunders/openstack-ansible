@@ -23,9 +23,9 @@ ADMIN_PASSWORD=${ADMIN_PASSWORD:-"secrete"}
 BOOTSTRAP_ANSIBLE=${BOOTSTRAP_ANSIBLE:-"yes"}
 BOOTSTRAP_AIO=${BOOTSTRAP_AIO:-"yes"}
 DEPLOY_SWIFT=${DEPLOY_SWIFT:-"yes"}
-DEPLOY_TEMPEST=${DEPLOY_TEMPEST:-"no"}
+DEPLOY_TEMPEST=${DEPLOY_TEMPEST:-"yes"}
 RUN_PLAYBOOKS=${RUN_PLAYBOOKS:-"yes"}
-RUN_TEMPEST=${RUN_TEMPEST:-"no"}
+RUN_TEMPEST=${RUN_TEMPEST:-"yes"}
 CONFIG_PREFIX=${CONFIG_PREFIX:-"rpc"}
 PLAYBOOK_DIRECTORY=${PLAYBOOK_DIRECTORY:-"${CONFIG_PREFIX}_deployment"}
 ANSIBLE_PARAMETERS=${ANSIBLE_PARAMETERS:-"--forks 10 -vvvv"}
@@ -76,6 +76,13 @@ if [ ! -d "/etc/${CONFIG_PREFIX}_deploy" ];then
 
   ./scripts/pw-token-gen.py --file ${USER_VARS_PATH}
 
+  # Reduce galera gache size in an attempt to fit into an 8GB cloudserver
+  if grep -q galera_gcache_size ${USER_VARS_PATH}
+  then
+    sed -i 's/galera_gcache_size:.*/galera_gcache_size: 50M/'
+  else
+    echo 'galera_gcache_size: 50M' >> ${USER_VARS_PATH}
+  fi
 
   # change the generated passwords for the OpenStack (admin) and Kibana (kibana) accounts
   sed -i "s/keystone_auth_admin_password:.*/keystone_auth_admin_password: ${ADMIN_PASSWORD}/" ${USER_VARS_PATH}

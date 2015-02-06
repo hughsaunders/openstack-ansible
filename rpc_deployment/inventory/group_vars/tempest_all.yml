@@ -20,3 +20,7 @@
 service_name: tempest
 
 tempest_swift_enabled: True
+cirros_image_url: 'http://download.cirros-cloud.net/0.3.3/cirros-0.3.3-x86_64-disk.img'
+neutron_public_cidr: '172.29.248.0/22'
+neutron_public_gateway_ip: '172.29.248.100'
+neutron_private_cidr: '192.168.74.0/24'
