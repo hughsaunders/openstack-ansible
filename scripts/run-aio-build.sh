@@ -19,10 +19,10 @@ set -e -u -v +x
 
 ## Variables -----------------------------------------------------------------
 
-REPO_URL=${REPO_URL:-"https://github.com/stackforge/os-ansible-deployment.git"}
-REPO_BRANCH=${REPO_BRANCH:-"master"}
-WORKING_FOLDER=${WORKING_FOLDER:-"/opt/stackforge/os-ansible-deployment"}
-ANSIBLE_PARAMETERS=${ANSIBLE_ANSIBLE_PARAMETERS:-"--forks 10"}
+export REPO_URL=${REPO_URL:-"https://github.com/stackforge/os-ansible-deployment.git"}
+export REPO_BRANCH=${REPO_BRANCH:-"master"}
+export WORKING_FOLDER=${WORKING_FOLDER:-"/opt/stackforge/os-ansible-deployment"}
+export ANSIBLE_PARAMETERS=${ANSIBLE_ANSIBLE_PARAMETERS:-"--forks 10"}
 
 ## Main ----------------------------------------------------------------------
 
@@ -38,7 +38,7 @@ git clone -b ${REPO_BRANCH} ${REPO_URL} ${WORKING_FOLDER}/
 # run the same aio build script that is used in the OpenStack CI pipeline
 cd ${WORKING_FOLDER}
 
-source $(dirname ${0})/gate-check-commit.sh
+bash scripts/gate-check-commit.sh
 
 # put a motd in place to help the user know what stuff is accessible once the build is complete
 cat > /etc/update-motd.d/20-openstack<< EOF
