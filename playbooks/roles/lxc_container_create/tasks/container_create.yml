@@ -26,36 +26,46 @@
   failed_when: false
   changed_when: vg_result.rc != 0
   delegate_to: "{{ physical_host }}"
+  when: lxc_container_backing_store == "lvm"
   tags:
     - lxc-container-vg-detect
 
-- name: Set container backend "dir" if "lvm" not found
+- name: Set container backend "dir" if "lvm" specified but not available.
   set_fact:
      lxc_container_backing_store: dir
-  when: vg_result.rc != 0
+  when: lxc_container_backing_store == "lvm" and vg_result.rc != 0
   delegate_to: "{{ physical_host }}"
   tags:
     - lxc-container-vg-detect
 
-- name: Container service directories
-  file:
-    path: "{{ item }}"
-    state: "directory"
-  with_items:
-    - "/openstack/{{ inventory_hostname }}"
-    - "/openstack/backup/{{ inventory_hostname }}"
-    - "/openstack/log/{{ inventory_hostname }}"
+# container_state defaults to started so doesn't need to be set to started
+# for lxc_container_strategy == "create"
+- name: set lxc_container_state stopped
+  set_fact:
+    container_state: stopped
+    lxc_container_name: "{{ lxc_container_prototype_name }}"
+  when: lxc_container_type == "prototype" and lxc_container_strategy == "clone"
   delegate_to: "{{ physical_host }}"
   tags:
-    - lxc-container-directories
+    - lxc-container-vg-detect
+
+- name: set lxc_container_state clone
+  set_fact:
+    container_state: clone
+  when: lxc_container_type == "production" and lxc_container_strategy == "clone"
+  delegate_to: "{{ physical_host }}"
+  tags:
+    - lxc-container-vg-detect
 
 - name: Create container
-  lxc-container:
-    name: "{{ inventory_hostname }}"
+  lxc_container:
+    name: "{{ lxc_container_name|default(inventory_hostname) }}"
+    clone_name: "{{inventory_hostname}}"
+    clone_snapshot: yes
     container_log: "true"
     config: "{{ lxc_container_config }}"
     template: "{{ lxc_container_template }}"
-    state: started
+    state: "{{ lxc_container_state }}"
     backing_store: "{{ lxc_container_backing_store }}"
     fs_size: "{{ lxc_container_fs_size }}"
     fs_type: "{{ lxc_container_fs_type }}"
@@ -91,53 +101,3 @@
   tags:
     - lxc-container-create
 
-- name: Container network interfaces
-  lxc-container:
-    name: "{{ inventory_hostname }}"
-    container_command: |
-        echo -e '{{ lxc_container_interface }}' | tee /etc/network/interfaces.d/{{ item.value.interface }}.cfg
-  with_dict: container_networks
-  delegate_to: "{{ physical_host }}"
-  tags:
-    - lxc-container-networks
-
-- name: LXC host config for container networks
-  template:
-    src: "container-interface.ini.j2"
-    dest: "/var/lib/lxc/{{ inventory_hostname }}/{{ item.value.interface }}.ini"
-    owner: "root"
-    group: "root"
-    mode: "0644"
-  with_dict: container_networks
-  notify:
-    - Lxc container restart
-  delegate_to: "{{ physical_host }}"
-  tags:
-    - lxc-container-networks
-
-- name: Container network configs
-  lineinfile:
-    dest: "/var/lib/lxc/{{ inventory_hostname }}/config"
-    line: "lxc.include = /var/lib/lxc/{{ inventory_hostname }}/{{ item.value.interface }}.ini"
-    backup: "true"
-  with_dict: container_networks
-  when: >
-    item.value.interface is defined
-  notify:
-    - Lxc container restart
-  delegate_to: "{{ physical_host }}"
-  tags:
-    - lxc-container-networks
-
-- name: Create container service directories
-  lxc-container:
-    name: "{{ inventory_hostname }}"
-    container_command: |
-      mkdir -p '/var/log/{{ properties.service_name }}'
-      mkdir -p '/etc/{{ properties.service_name }}'
-    container_config:
-      - "lxc.mount.entry=/openstack/log/{{ inventory_hostname }} var/log/{{ properties.service_name }} none defaults,bind,rw 0 0"
-  when: properties.service_name is defined
-  delegate_to: "{{ physical_host }}"
-  tags:
-    - lxc-container-service-dirs

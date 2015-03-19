@@ -13,25 +13,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Sanity check container creation
-  set_fact:
-    create_containers: true
-  when: >
-    physical_host is defined and
-    inventory_hostname is defined and
-    physical_host != inventory_hostname
-
-- include: pre_create.yml
-  when: create_containers|default(false)
+- name: Create container via clone
+  lxc_container:
+    name: "{{ inventory_hostname }}"
+    clone_name: "{{ inventory_hostname}}"
+    clone_snapshot: true
+    state: clone
+    backing_store: "{{lxc_container_backing_store}}"
+  delegate_to: "{{ physical_host }}"
   tags:
-    - lxc-container
+    - lxc-container-create
 
-- include: container_create.yml
-  when: create_containers|default(false)
-  tags:
-    - lxc-container
-
-- include: post_create.yml
-  when: create_containers|default(false) and lxc_container_type != "prototype"
-  tags:
-    - lxc-container

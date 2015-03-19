@@ -13,25 +13,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Sanity check container creation
-  set_fact:
-    create_containers: true
-  when: >
-    physical_host is defined and
-    inventory_hostname is defined and
-    physical_host != inventory_hostname
-
-- include: pre_create.yml
-  when: create_containers|default(false)
+- name: Container service directories
+  file:
+    path: "{{ item }}"
+    state: "directory"
+  with_items:
+    - "/openstack/{{ inventory_hostname }}"
+    - "/openstack/backup/{{ inventory_hostname }}"
+    - "/openstack/log/{{ inventory_hostname }}"
+  delegate_to: "{{ physical_host }}"
   tags:
-    - lxc-container
+    - lxc-container-directories
 
-- include: container_create.yml
-  when: create_containers|default(false)
-  tags:
-    - lxc-container
-
-- include: post_create.yml
-  when: create_containers|default(false) and lxc_container_type != "prototype"
-  tags:
-    - lxc-container

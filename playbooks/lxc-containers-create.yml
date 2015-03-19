@@ -19,7 +19,9 @@
   gather_facts: false
   user: root
   roles:
-    - { role: "lxc_container_create", tags: [ "lxc-container-create" ] }
+    - role: "lxc_container_create"
+      tags: [ "lxc-container-create" ]
+      lxc_container_type: production
   vars:
     ansible_hostname: "{{ container_name }}"
     is_metal: "{{ properties.is_metal|default(false) }}"

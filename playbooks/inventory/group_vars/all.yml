@@ -49,6 +49,7 @@ lxc_container_template_main_apt_repo: "http://mirror.rackspace.com/ubuntu"
 lxc_container_template_security_apt_repo: "http://mirror.rackspace.com/ubuntu"
 
 
+
 ## RabbitMQ
 rabbitmq_userid: openstack
 rabbitmq_cluster_name: openstack

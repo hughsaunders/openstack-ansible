@@ -15,6 +15,12 @@
 
 lxc_container_config: /etc/lxc/lxc-openstack.conf
 
+lxc_container_prototype_name: prototype_container
+lxc_container_state: started
+# create or clone. Create creates each container from a template.
+# clone creates a prototype container on each host, then clones it.
+lxc_container_strategy: "create"
+
 # Default container template to build from
 lxc_container_template: openstack
 

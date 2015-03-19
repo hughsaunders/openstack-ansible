@@ -25,5 +25,9 @@
       rsyslog_client_config_name: "99-lxc-rsyslog-client.conf"
       tags:
         - "lxc-rsyslog-client"
+    - role: "lxc_container_create"
+      lxc_container_type: prototype
+      inventory_hostname: prototype
+      when: lxc_container_strategy == "clone"
   vars_files:
     - vars/repo_packages/python2_lxc.yml
