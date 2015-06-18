@@ -89,3 +89,12 @@ public_port = {{ keystone_service_port }}
 rabbit_hosts = {{ rabbitmq_servers }}
 rabbit_userid = {{ rabbitmq_userid }}
 rabbit_password = {{ rabbitmq_password }}
+
+[saml]
+{% if keystone_as_idp|bool %}
+certfile = {{ keystone_ssl_cert }}
+keyfile = {{ keystone_ssl_key }}
+idp_entity_id={{ keystone_service_publicuri_v3 }}/OS-FEDERATION/saml2/idp
+idp_sso_endpoint={{ keystone_service_publicuri_v3 }}/OS-FEDERATION/saml2/sso
+idp_metadata_path = {{ keystone_idp_metadata_path }}
+{% endif %}

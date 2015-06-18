@@ -140,6 +140,21 @@ keystone_ssl_cipher_suite: "{{ ssl_cipher_suite }}"
 keystone_ldap_identity_driver: keystone.identity.backends.ldap.Identity
 keystone_ldap_domain_config_dir: /etc/keystone/domains
 
+## SAML
+# The following options are required for keystone to act as an identity
+# provider (IDP)
+keystone_as_idp: false
+keystone_idp_metadata_path: /etc/keystone/saml2_idp_metadata.xml
+keystone_idp_organisation: openstack_private_cloud
+keystone_idp_organization_display_name: "Openstack Private Cloud"
+keystone_idp_organisation_url: openstack.org
+keystone_idp_contact_company: openstack
+keystone_idp_contact_name: Alice
+keystone_idp_contact_surname: Bob
+keystone_idp_contact_email: abob@openstack.org
+keystone_idp_contact_telephone: 12345678901
+keystone_idp_contact_type: technical
+
 ## Policy vars
 # Provide a list of access controls to update the default policy.json with. These changes will be merged
 # with the access controls in the default policy.json. E.g.
