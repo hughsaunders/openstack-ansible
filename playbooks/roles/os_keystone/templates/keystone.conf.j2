@@ -87,6 +87,15 @@ provider = {{ keystone_token_provider }}
 driver = {{ keystone_token_driver }}
 {% endif %}
 
+{% if keystone_idp is defined %}
+[saml]
+certfile = "{{ keystone_idp.certfile }}"
+keyfile = "{{ keystone_idp.keyfile }}"
+idp_entity_id = "{{ keystone_idp.idp_entity_id }}"
+idp_sso_endpoint = "{{ keystone_idp.idp_sso_endpoint }}"
+idp_metadata_path = "{{ keystone_idp.idp_metadata_path }}"
+{% endif %}
+
 [eventlet_server]
 admin_bind_host = {{ keystone_bind_address }}
 admin_port = {{ keystone_admin_port }}

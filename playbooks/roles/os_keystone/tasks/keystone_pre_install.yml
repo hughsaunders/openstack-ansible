@@ -21,10 +21,20 @@
   tags:
     - keystone-group
 
+- name: create additional groups
+  group:
+    name: "{{ item }}"
+    state: "present"
+    system: "yes"
+  with_items: keystone_system_additional_groups
+  tags:
+    - keystone-group
+
 - name: Create the keystone system user
   user:
     name: "{{ keystone_system_user_name }}"
     group: "{{ keystone_system_group_name }}"
+    groups: "{{ keystone_system_additional_groups | join(',') }}"
     comment: "{{ keystone_system_comment }}"
     shell: "{{ keystone_system_shell }}"
     system: "yes"
@@ -33,10 +43,10 @@
   tags:
     - keystone-user
 
-- name: Create keystone dir
+- name: Create Keystone dirs and set perms.
   file:
     path: "{{ item.path }}"
-    state: directory
+    state: "{{ item.state|default('directory')}}"
     owner: "{{ item.owner|default(keystone_system_user_name) }}"
     group: "{{ item.group|default(keystone_system_group_name) }}"
     mode: "{{ item.mode|default(0755) }}"
@@ -49,6 +59,9 @@
     - { path: "{{ keystone_system_user_home }}" }
     - { path: "/var/www/cgi-bin", owner: root, group: root }
     - { path: "/var/www/cgi-bin/keystone" }
+    - { path: "/etc/ssl/certs", mode: "0750", group: "ssl_cert" }
+    - { path: "/etc/ssl/certs/signing_cert.pem", mode: "0640",
+        group: "ssl_cert", state: "touch" }
   tags:
     - keystone-dirs
 

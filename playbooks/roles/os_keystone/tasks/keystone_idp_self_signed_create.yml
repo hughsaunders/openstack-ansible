@@ -13,36 +13,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- include: keystone_pre_install.yml
-- include: keystone_install.yml
-
-- include: keystone_key_setup.yml
-  tags:
-    - keystone-key
-    - keystone-key-distribute
-
-- include: keystone_fernet.yml
-  tags:
-    - keystone-fernet
+- name: Remove IdP self-signed certificate for regen
+  file:
+    dest: "{{ keystone_idp.cerfile }}"
+    state: "absent"
   when: >
-    'fernet' in keystone_token_provider
+    keystone_idp.regen_cert == true or
+    keystone_idp.regen_cert == "True"
 
-- include: keystone_post_install.yml
-
-- include: keystone_idp_setup.yml
-  when: >
-    keystone_idp is defined
-
-- include: keystone_db_setup.yml
+- name: Create IdP self-signed ssl cert
+  command: >
+    openssl req -new -nodes -sha256 -x509 -subj
+    "/C=US/ST=Texas/L=San Antonio/O=IT/CN={{ external_lb_vip_address }}"
+    -days 3650
+    -keyout {{ keystone_idp.keyfile }}
+    -out {{ keystone_idp.certfile }}
+    -extensions v3_ca
+    creates={{ keystone_idp.certfile }}
   when: >
     inventory_hostname == groups['keystone_all'][0]
-
-- include: keystone_apache.yml
-- include: keystone_token_cleanup.yml
-
-- include: keystone_service_setup.yml
-  when: >
-    inventory_hostname == groups['keystone_all'][0]
-
-- name: Flush handlers
-  meta: flush_handlers
+  notify: Restart Apache
+  tags:
+    - keystone-config
+    - keystone-idp
