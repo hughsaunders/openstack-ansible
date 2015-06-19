@@ -24,6 +24,7 @@ keystone_fatal_deprecations: False
 ## System info
 keystone_system_user_name: keystone
 keystone_system_group_name: keystone
+keystone_system_additional_groups: ssl-cert
 keystone_system_service_name: apache2
 keystone_system_shell: /bin/false
 keystone_system_comment: keystone system user
@@ -118,9 +119,10 @@ keystone_service_adminurl_v3: "{{ keystone_service_adminuri_v3 }}/v3"
 keystone_apache_log_level: info
 
 keystone_ssl_enabled: false
-keystone_ssl_cert: /etc/ssl/certs/apache.cert
-keystone_ssl_key: /etc/ssl/private/apache.key
 keystone_ssl_cert_path: /etc/ssl/certs
+keystone_ssl_cert: "{{ keystone_ssl_cert_path }}/apache.cert"
+keystone_ssl_key_path: /etc/ssl/private
+keystone_ssl_key: "{{ keystone_ssl_key_path }}/apache.key"
 keystone_ssl_protocol: "{{ ssl_protocol }}"
 keystone_ssl_cipher_suite: "{{ ssl_cipher_suite }}"
 
@@ -151,6 +153,16 @@ keystone_ldap_domain_config_dir: /etc/keystone/domains
 #  identity:create_region: "rule:admin_required"
 #  identity:update_region: "rule:admin_required"
 
+## Federation
+
+# Enable the following section on the Keystone IdP
+#keystone_idp:
+#  certfile: "{{ keystone_ssl_cert_path }}/signing_cert.pem"
+#  keyfile: "{{ keystone_ssl_key_path }}/signing_key.pem"
+#  idp_entity_id: "{{ keystone_service_publicurl_v3 }}/OS-FEDERATION/saml2/idp"
+#  idp_sso_endpoint: "{{ keystone_service_publicurl_v3 }}/OS-FEDERATION/saml2/sso"
+#  idp_metadata_path: /etc/keystone/saml2_idp_metadata.xml
+
 # Common apt packages
 keystone_apt_packages:
   - apache2
@@ -166,6 +178,7 @@ keystone_apt_packages:
   - libsasl2-dev
   - libxslt1.1
   - rsync
+  - xmlsec1
 
 # Common pip packages
 keystone_pip_packages:
