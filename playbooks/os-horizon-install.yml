@@ -48,7 +48,29 @@
       when: is_metal == true or is_metal == "True"
       tags:
         - horizon-logs
+    - name: Remove self signed cert
+      file:
+        state: absent
+        path: {{ item }}
+      with_items:
+        - {{ horizon_ssl_cert }}
+        - {{ horizon_ssl_key }}
+        - {{ horizon_ssl_csr_path }}
+      when: horizon_self_signed_regen|bool
+
   roles:
+    - role: jdauphant.ssl-certs
+        ssl_certs_country: US
+        ssl_certs_locality: San Antonio
+        ssl_certs_organization: IT
+        ssl_certs_state: Texas
+        ssl_certs_common_name: {{ horizon_server_name }}
+        ssl_certs_days: 3650
+        ssl_certs_pivkey_path: {{ horizon_ssl_key }}
+        ssl_certs_cert_path: {{ horizon_ssl_cert }}
+        ssl_certs_csr_path: {{ horizon_ssl_csr_path }}
+        when: horizion_self_signed|bool
+
     - { role: "os_horizon", tags: [ "os-horizon" ] }
     - role: "rsyslog_client"
       rsyslog_client_log_dir: "/var/log/apache2"
