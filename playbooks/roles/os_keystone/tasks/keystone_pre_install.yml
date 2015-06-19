@@ -21,10 +21,20 @@
   tags:
     - keystone-group
 
+- name: create additional groups
+  group:
+    name: "{{ item }}"
+    state: "present"
+    system: "yes"
+  with_items: keystone_system_additional_groups
+  tags:
+    - keystone-group
+
 - name: Create the keystone system user
   user:
     name: "{{ keystone_system_user_name }}"
     group: "{{ keystone_system_group_name }}"
+    groups: "{{ keystone_system_additional_groups | join(',') }}"
     comment: "{{ keystone_system_comment }}"
     shell: "{{ keystone_system_shell }}"
     system: "yes"
