@@ -56,3 +56,13 @@
     - Restart Apache
   tags:
     - keystone-httpd
+
+- name: Ensure mod_shib2 is present
+  apache2_module:
+    name: shib2
+    state: present
+  when: keystone_sp is defined
+  notify:
+    - Restart Apache
+  tags:
+    - keystone-httpd

@@ -151,6 +151,17 @@ keystone_ldap_domain_config_dir: /etc/keystone/domains
 #  identity:create_region: "rule:admin_required"
 #  identity:update_region: "rule:admin_required"
 
+## Federation
+#
+# Enable the following section on the Keystone SP
+#keystone_sp:
+#  idp_entity_id: "{{ keystone_service_publicurl_v3 }}/OS-FEDERATION/saml2/idp"
+#  cert_duration_years: 5
+#  idp_metadata_provider_uri: "{{ keystone_service_publicurl_v3 }}/OS-FEDERATION/saml2/metadata"
+#  idp_metadata_provider_file: "/etc/shibboleth/idp-metadata-keystone.xml"
+#  idp_metadata_provider_reload: 1800
+#  trusted_dashboard: "https://{{ external_lb_vip_address }}/auth/websso/"
+
 # Common apt packages
 keystone_apt_packages:
   - apache2
@@ -166,6 +177,8 @@ keystone_apt_packages:
   - libsasl2-dev
   - libxslt1.1
   - rsync
+  - libapache2-mod-shib2
+  - xmlsec1
 
 # Common pip packages
 keystone_pip_packages:

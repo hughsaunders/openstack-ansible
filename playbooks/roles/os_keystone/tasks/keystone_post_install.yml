@@ -58,3 +58,28 @@
   tags:
     - keystone-config
 
+- name: Drop Shibboleth Config
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ keystone_system_user_name }}"
+    group: "{{ keystone_system_group_name }}"
+    mode: "{{ item.mode|default('0644') }}"
+  with_items:
+    - { src: "shibboleth-attribute-map.xml.j2", dest: "/etc/shibboleth/attribute-map.xml" }
+    - { src: "shibboleth2.xml.j2", dest: "/etc/shibboleth/shibboleth2.xml" }
+  when: keystone_sp is defined
+  notify:
+    - Restart Shibd
+  tags:
+    - keystone-config
+
+- name: Generate the Shibboleth SP key-pair
+  shell: "shib-keygen -h {{ container_address }} -y {{ keystone_sp.cert_duration_years }}"
+  args:
+    creates: "/etc/shibboleth/sp-cert.pem"
+  when: keystone_sp is defined
+  notify:
+    - Restart Apache
+  tags:
+    - keystone-config
