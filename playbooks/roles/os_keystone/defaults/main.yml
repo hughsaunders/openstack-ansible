@@ -33,6 +33,8 @@ keystone_rpc_backend: rabbit
 
 ## Drivers
 keystone_auth_methods: "password,token"
+# Uncomment following for federation
+# keystone_auth_methods: "external,password,token,saml2"
 keystone_identity_driver: "keystone.identity.backends.sql.Identity"
 # For a sql backed token storage use: "keystone.token.backends.sql.Token"
 keystone_token_driver: "keystone.token.persistence.backends.memcache.Token"
@@ -155,6 +157,12 @@ keystone_idp_contact_email: abob@openstack.org
 keystone_idp_contact_telephone: 12345678901
 keystone_idp_contact_type: technical
 
+# The following options are required for keystone act as a serice provider
+keystone_as_sp: false
+keystone_shibboleth_attribute_map: /etc/shibboleth/attribute-map.xml
+keystone_shibboleth_config: /etc/shibboleth/shibboleth2.xml
+
+
 ## Policy vars
 # Provide a list of access controls to update the default policy.json with. These changes will be merged
 # with the access controls in the default policy.json. E.g.
@@ -176,6 +184,8 @@ keystone_apt_packages:
   - libldap2-dev
   - libsasl2-dev
   - libxslt1.1
+  - xmlsec1
+  - libapache2-mod-shib2
 
 # Common pip packages
 keystone_pip_packages:
@@ -191,3 +201,4 @@ keystone_pip_packages:
   - python-keystoneclient
   - python-memcached
   - repoze.lru
+  - pysaml2

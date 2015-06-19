@@ -44,7 +44,7 @@ cache_time = {{ keystone_revocation_cache_time }}
 
 [auth]
 methods = {{ keystone_auth_methods }}
-
+saml2 = keystone.auth.plugins.mapped.Mapped
 
 [database]
 connection = mysql://{{ keystone_galera_user }}:{{ keystone_container_mysql_password }}@{{ keystone_galera_address }}/{{ keystone_galera_database }}?charset=utf8
@@ -98,3 +98,11 @@ idp_entity_id={{ keystone_service_publicuri_v3 }}/OS-FEDERATION/saml2/idp
 idp_sso_endpoint={{ keystone_service_publicuri_v3 }}/OS-FEDERATION/saml2/sso
 idp_metadata_path = {{ keystone_idp_metadata_path }}
 {% endif %}
+
+{# not be needed for kilo
+[federation]
+{% if keystone_as_sp|bool $}
+driver = keystone.contrib.federation.backends.sql.Federation
+{% endif %}
+#}
+
