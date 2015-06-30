@@ -47,13 +47,14 @@
   keystone:
     command: "ensure_tenant"
     token: "{{ keystone_auth_admin_token }}"
-    endpoint: "{{ keystone_service_adminurl }}"
+    endpoint: "{{ keystone_service_adminurl_v3 }}"
     tenant_name: "{{ keystone_service_tenant_name }}"
     description: "{{ keystone_service_description }}"
   register: add_service
   until: add_service|success
   retries: 5
   delay: 10
+  when: inventory_hostname == play_hosts[0]
   tags:
     - keystone-api-setup
     - keystone-setup
@@ -63,13 +64,14 @@
   keystone:
     command: "ensure_tenant"
     token: "{{ keystone_auth_admin_token }}"
-    endpoint: "{{ keystone_service_adminurl }}"
+    endpoint: "{{ keystone_service_adminurl_v3 }}"
     tenant_name: "{{ keystone_admin_tenant_name }}"
     description: "{{ keystone_admin_description }}"
   register: add_service
   until: add_service|success
   retries: 5
   delay: 10
+  when: inventory_hostname == play_hosts[0]
   tags:
     - keystone-api-setup
     - keystone-setup
@@ -79,7 +81,7 @@
   keystone:
     command: "ensure_user"
     token: "{{ keystone_auth_admin_token }}"
-    endpoint: "{{ keystone_service_adminurl }}"
+    endpoint: "{{ keystone_service_adminurl_v3 }}"
     user_name: "{{ keystone_admin_user_name }}"
     tenant_name: "{{ keystone_admin_tenant_name }}"
     password: "{{ keystone_auth_admin_password }}"
@@ -87,6 +89,7 @@
   until: add_service|success
   retries: 5
   delay: 10
+  when: inventory_hostname == play_hosts[0]
   tags:
     - keystone-api-setup
     - keystone-setup
@@ -96,12 +99,13 @@
   keystone:
     command: "ensure_role"
     token: "{{ keystone_auth_admin_token }}"
-    endpoint: "{{ keystone_service_adminurl }}"
+    endpoint: "{{ keystone_service_adminurl_v3 }}"
     role_name: "{{ keystone_role_name }}"
   register: add_service
   until: add_service|success
   retries: 5
   delay: 10
+  when: inventory_hostname == play_hosts[0]
   tags:
     - keystone-api-setup
     - keystone-setup
@@ -111,7 +115,7 @@
   keystone:
     command: "ensure_user_role"
     token: "{{ keystone_auth_admin_token }}"
-    endpoint: "{{ keystone_service_adminurl }}"
+    endpoint: "{{ keystone_service_adminurl_v3 }}"
     user_name: "{{ keystone_admin_user_name }}"
     tenant_name: "{{ keystone_admin_tenant_name }}"
     role_name: "{{ keystone_role_name }}"
@@ -119,6 +123,7 @@
   until: add_service|success
   retries: 5
   delay: 10
+  when: inventory_hostname == play_hosts[0]
   tags:
     - keystone-api-setup
     - keystone-setup
@@ -128,7 +133,7 @@
   keystone:
     command: "ensure_service"
     token: "{{ keystone_auth_admin_token }}"
-    endpoint: "{{ keystone_service_adminurl }}"
+    endpoint: "{{ keystone_service_adminurl_v3 }}"
     service_name: "{{ keystone_service_name }}"
     service_type: "{{ keystone_service_type }}"
     description: "{{ keystone_service_description }}"
@@ -136,6 +141,7 @@
   until: add_service|success
   retries: 5
   delay: 10
+  when: inventory_hostname == play_hosts[0]
   tags:
     - keystone-api-setup
     - keystone-service-add
@@ -146,7 +152,7 @@
   keystone:
     command: "ensure_user"
     token: "{{ keystone_auth_admin_token }}"
-    endpoint: "{{ keystone_service_adminurl }}"
+    endpoint: "{{ keystone_service_adminurl_v3 }}"
     user_name: "{{ keystone_service_user_name }}"
     tenant_name: "{{ keystone_service_tenant_name }}"
     password: "{{ keystone_service_password }}"
@@ -154,6 +160,7 @@
   until: add_service|success
   retries: 5
   delay: 10
+  when: inventory_hostname == play_hosts[0]
   tags:
     - keystone-api-setup
     - keystone-service-add
@@ -164,7 +171,7 @@
   keystone:
     command: "ensure_user_role"
     token: "{{ keystone_auth_admin_token }}"
-    endpoint: "{{ keystone_service_adminurl }}"
+    endpoint: "{{ keystone_service_adminurl_v3 }}"
     user_name: "{{ keystone_service_user_name }}"
     tenant_name: "{{ keystone_service_tenant_name }}"
     role_name: "{{ keystone_role_name }}"
@@ -172,6 +179,7 @@
   until: add_service|success
   retries: 5
   delay: 10
+  when: inventory_hostname == play_hosts[0]
   tags:
     - keystone-api-setup
     - keystone-service-add
@@ -182,17 +190,22 @@
   keystone:
     command: "ensure_endpoint"
     token: "{{ keystone_auth_admin_token }}"
-    endpoint: "{{ keystone_service_adminurl }}"
+    endpoint: "{{ keystone_service_adminurl_v3 }}"
     region_name: "{{ keystone_service_region }}"
     service_name: "{{ keystone_service_name }}"
     service_type: "{{ keystone_service_type }}"
-    publicurl: "{{ keystone_service_publicurl }}"
-    adminurl: "{{ keystone_service_adminurl }}"
-    internalurl: "{{ keystone_service_internalurl }}"
+    endpoint_list:
+      - url: "{{ keystone_service_publicurl }}"
+        interface: "public"
+      - url: "{{ keystone_service_adminurl_v3 }}"
+        interface: "admin"
+      - url: "{{ keystone_service_internalurl }}"
+        interface: "internal"
   register: add_service
   until: add_service|success
   retries: 5
   delay: 10
+  when: inventory_hostname == play_hosts[0]
   tags:
     - keystone-api-setup
     - keystone-service-add
