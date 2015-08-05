@@ -30,6 +30,7 @@ ceph_components:
       - python-ceph
     client:
       - '{{ cinder_ceph_client }}'
+      - '{{ cinder_backup_ceph_client }}'
     service: '{{ ceph_cinder_service_names }}'
   - component: nova_compute
     package:
