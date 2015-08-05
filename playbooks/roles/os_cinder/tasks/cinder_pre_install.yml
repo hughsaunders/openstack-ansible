@@ -13,6 +13,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+- name: Check cinder_backup group exists if cinder backup is in use
+  fail:
+    msg: >
+      The group cinder_backup doesn't exist.
+      Please copy os-ansible-deployment/etc/openstack_deploy/env.d/cinder_backup.yml
+      to /etc/openstack_deploy/env.d"
+  when: cinder_service_backup_program_enabled | bool
+        and 'cinder_backup' not in groups
+
 - name: create the system group
   group:
     name: "{{ cinder_system_group_name }}"
