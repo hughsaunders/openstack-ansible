@@ -1,0 +1,40 @@
+# https://github.com/pypa/sampleproject/blob/master/setup.py
+
+{% set i = item.1 %}
+
+from setuptools import setup
+
+setup(
+    name='{{i.package_name}}',
+    version='{{i.package_version}}',
+
+    description='{{i.package_description}}',
+    long_description='{{i.package_description}}',
+
+    # The project's main homepage.
+    url='{{i.package_url}}',
+
+    # Author details
+    author='{{i.package_author}}',
+    author_email='{{i.package_email}}',
+
+    # Choose your license
+    license='{{i.package_license}}',
+
+    # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
+    classifiers=['{{i.package_classifiers|default([])|join(",")}}'],
+
+    # What does your project relate to?
+    keywords='{{i.package_keywords|join(" ")}}',
+
+    # Alternatively, if you want to distribute just a my_module.py, uncomment
+    # this:
+    py_modules=['{{i.package_module_urls|map(attribute="module")|join("','")}}'],
+
+    # List run-time dependencies here.  These will be installed by pip when
+    # your project is installed. For an analysis of "install_requires" vs pip's
+    # requirements files see:
+    # https://packaging.python.org/en/latest/requirements.html
+    install_requires=['{{i.package_deps|default([])|join(",")}}'],
+
+)

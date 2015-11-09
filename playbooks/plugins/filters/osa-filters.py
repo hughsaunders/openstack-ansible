@@ -14,10 +14,10 @@
 #
 # (c) 2015, Kevin Carter <kevin.carter@rackspace.com>
 
+import hashlib
 import os
 import re
 import urlparse
-import hashlib
 
 from ansible import errors
 
@@ -34,7 +34,7 @@ def bit_length_power_of_2(value):
     :type value: ``int``
     :returns: ``int``
     """
-    return 2**(int(value)-1).bit_length()
+    return 2 ** (int(value) - 1).bit_length()
 
 
 def get_netloc(url):
@@ -113,6 +113,7 @@ def string_2_int(string):
 
 def pip_requirement_names(requirements):
     """Return a ``str`` of requirement name and list of versions.
+
     :param requirement: Name of a requirement that may have versions within
                         it. This will use the constant,
                         VERSION_DESCRIPTORS.
@@ -141,7 +142,19 @@ def filtered_list(list_one, list_two):
 
     _list_one = set([i.lower() for i in list_one])
     _list_two = set([i.lower() for i in list_two])
-    return list(_list_one-_list_two)
+    return list(_list_one - _list_two)
+
+
+def flattened_list(input_list, flattened=None):
+    """Recursively flatten a list """
+    if flattened is None:
+        flattened = []
+    if not isinstance(input_list, list):
+        flattened.append(input_list)
+        return flattened
+    for item in input_list:
+        flattened_list(item, flattened)
+    return flattened
 
 
 def git_link_parse(repo):
@@ -202,5 +215,6 @@ class FilterModule(object):
             'splitlines': splitlines,
             'filtered_list': filtered_list,
             'git_link_parse': git_link_parse,
-            'git_link_parse_name': git_link_parse_name
+            'git_link_parse_name': git_link_parse_name,
+            'flattened_list': flattened_list
         }

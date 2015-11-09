@@ -60,6 +60,19 @@
   tags:
     - repo-create-venv
 
+# Shell used here as the exact package name is not known.
+- name: Add non-pypi packages to relevant venvs
+  shell: ". bin/activate; pip install {{non_pypi_wheel_dir}}/{{item.0.package_name}}*.whl {{ repo_build_venv_pip_install_options }}"
+  args:
+    chdir: "{{ repo_build_venv_build_dir }}/venvs/{{item.1}}"
+  register: install_non_pypi_packages
+#  until: install_non_pypi_packages|success
+#  retries: 0
+#  delay: 2
+  with_subelements:
+    - non_pypi_packages
+    - package_roles
+
 - name: Create venv archive
   shell: |
     # This is to clean up pyc files which makes the archived venv smaller

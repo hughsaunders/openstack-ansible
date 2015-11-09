@@ -1,0 +1,63 @@
+- name: Clear non-pypi temporary build dir
+  file:
+    path: "{{non_pypi_build_dir}}"
+    state: absent
+  tags:
+    - non-pypi
+    - package-build
+    - repo-build
+
+- name: Create non-pypi temporary build dir
+  file:
+    path: "{{non_pypi_build_dir}}/{{item.package_name}}"
+    state: directory
+  with_items: non_pypi_packages
+  tags:
+    - non-pypi
+    - package-build
+    - repo-build
+
+- name: Create non-pypi wheel dir
+  file:
+    path: "{{non_pypi_wheel_dir}}"
+    state: directory
+  tags:
+    - non-pypi
+    - package-build
+    - repo-build
+
+- name: Template non-pypi Package boilerplate
+  template:
+    src: "{{item.0}}"
+    dest: "{{non_pypi_build_dir}}/{{item.1.package_name}}/{{item.0|replace('.j2','')}}"
+  with_nested:
+    -
+      - setup.py.j2
+      - setup.cfg.j2
+    - non_pypi_packages
+  tags:
+    - non-pypi
+    - package-build
+    - repo-build
+
+- name: Retrieve non-pypi Module files
+  get_url:
+    url: "{{item.1.url}}"
+    dest: "{{non_pypi_build_dir}}/{{item.0.package_name}}/{{item.1.module}}.py"
+  with_subelements:
+    - non_pypi_packages
+    - package_module_urls
+  tags:
+    - non-pypi
+    - package-build
+    - repo-build
+
+- name: Build non-pypi Wheels
+  shell: "pip wheel --wheel-dir={{non_pypi_wheel_dir}} ."
+  args:
+    chdir: "{{non_pypi_build_dir}}/{{item.package_name}}"
+  with_items: non_pypi_packages
+  tags:
+    - non-pypi
+    - package-build
+    - repo-build

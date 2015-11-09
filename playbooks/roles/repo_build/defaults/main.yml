@@ -17,12 +17,13 @@ repo_build_use_upper_constraints: true
 
 repo_build_service_user_name: "nginx"
 
-repo_build_global_links_path: "/var/www/repo/links"
-repo_build_release_path: "/var/www/repo/os-releases"
+repo_dir: "/var/www/repo/"
+repo_build_global_links_path: "{{repo_dir}}/links"
+repo_build_release_path: "{{repo_dir}}/os-releases"
 repo_build_dir: "/tmp/openstack-builder"
 repo_build_output: "/tmp/openstack-wheel-output"
-repo_build_git_dir: "/var/www/repo/openstackgit"
-repo_build_pool_dir: "/var/www/repo/pools"
+repo_build_git_dir: "{{repo_dir}}/openstackgit"
+repo_build_pool_dir: "{{repo_dir}}/pools"
 
 repo_build_release_tag: "untagged"
 
@@ -33,10 +34,32 @@ repo_build_timeout: 120
 
 repo_build_venv_force_rebuild: false
 repo_build_venv_build_dir: "/tmp/openstack-venv-builder"
-repo_build_venv_dir: "/var/www/repo/venvs"
+repo_build_venv_dir: "{{repo_dir}}/venvs"
 repo_build_venv_pip_install_options: >
   --timeout 120
   --find-links {{ repo_build_release_path }}/{{ repo_build_release_tag }}
   --no-index
   --verbose
   --log /var/log/repo/repo_venv_builder.log
+
+non_pypi_build_dir: /tmp/non_pypi_build
+non_pypi_wheel_dir: "{{repo_dir}}/non_pypi_wheels"
+non_pypi_packages:
+  - package_name: cephclientlibs
+    package_version: 0.94.5
+    package_description: python ceph client bindings for rados and rbd
+    package_url: http://ceph.com/
+    package_author: Openstack-Ansible
+    package_email: openstack-dev@lists.openstack.org
+    package_license: LGPL
+    package_keywords:
+      - storage
+    package_module_urls:
+      - url: https://raw.githubusercontent.com/ceph/ceph/hammer/src/pybind/rados.py
+        module: rados
+      - url: https://raw.githubusercontent.com/ceph/ceph/hammer/src/pybind/rbd.py
+        module: rbd
+    package_roles:
+      - cinder
+      - nova
+      - glance

@@ -1,0 +1,37 @@
+package_name: package name
+package_version: 0.0.1
+package_description:  package description
+package_url: package_url
+package_author: package_author
+package_email: author@author.com
+package_license: license
+
+# https://pypi.python.org/pypi?%3Aaction=list_classifiers
+#package_classifiers:
+#  - 'Development Status :: 5 - Production/Stable',
+#  - 'Intended Audience :: Developers',
+#  - 'Topic :: Software Development :: Build Tools',
+#  - 'License :: OSI Approved :: MIT License',
+#  - 'Programming Language :: Python :: 2',
+
+package_classifiers: []
+package_keywords: []
+package_deps: []
+
+# Where to create the package to build
+package_build_dir: /tmp/module_wheel/{{package_name}}
+
+# Where to store built wheels
+package_wheel_dir: /tmp/module_wheels
+
+# list of dictionary of url and destination
+# For example: 
+# package_module_urls:
+#   - url: https://raw.githubusercontent.com/ceph/ceph/hammer/src/pybind/rados.py
+#     dest: rados.py
+#   - url: https://raw.githubusercontent.com/ceph/ceph/hammer/src/pybind/rbd.py
+#     dest: rbd.py
+
+package_module_urls: []
+
+package_modules: "{{package_module_urls |map(attribute='dest')|list|replace('.py','')}}"
