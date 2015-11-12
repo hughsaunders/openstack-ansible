@@ -306,6 +306,7 @@ nova_pip_packages:
   - python-novaclient
   - keystonemiddleware
   - nova
+  - python-cephlibs
 
 
 ## Tunable overrides
