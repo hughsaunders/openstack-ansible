@@ -80,50 +80,33 @@ function gen_test_list_all {
   cat
 }
 
-# Generate test list from official defcore/refstack spec
-# Note that unlike the other test list functions, this one isn't a filter
-# it ignores its stdin and pulls the test list from github.
+# Retrieve most current list of defcore tests and run those.
 function gen_test_list_defcore {
-  branch=${1:-master}
-  string=$(python <<END
-import json
-import requests
+  release=$1
+  dc_dir=/tmp/defcore
+  [ -e $dc_dir ] && rm -rf $dc_dir
+  git clone http://github.com/openstack/defcore $dc_dir 1>&2
+  pushd $dc_dir &>/dev/null
+  matching_json=$(grep -Pz --files-with-match \
+                  '(?s)"status": "approved".*releases":\N*'${release} *.json 2>/dev/null)
 
-branch="$branch"
-map = {
-    'master': '2015.next',
-    'juno': '2015.04',
-    'icehouse': '2015.04'
+  [[ -z "$matching_json" ]] && {
+    echo "no approved test list found for $release"
+    popd &>/dev/null
+    return 1
+  }
+
+  latest_approved=$(ls -1tr $matching_json |sed 's/\.json//' |tail -n 1)
+  cat ${latest_approved}/*required*txt
+  popd &>/dev/null
 }
 
-url=("https://raw.githubusercontent.com/openstack/"
-     "defcore/master/%(version)s.json"
-     % {'version': map[branch]}
-     )
-response = requests.get(url)
-for capability in response.json()['capabilities'].values():
-  for test in capability['tests']:
-    print test
-END
-)
-
-  read -a test_list <<<$string
-  parse_cmd="grep "
-  for item in ${test_list[@]}; do
-    parse_cmd+="-e $item "
-  done
-
-  $parse_cmd
+function gen_test_list_defcore_kilo {
+  gen_test_list_defcore kilo
 }
 
-# defcore tests for juno
-function gen_test_list_defcore_juno {
-  gen_test_list_defcore juno
-}
-
-# defcore tests for icehouse
-function gen_test_list_defcore_icehouse {
-  gen_test_list_defcore icehouse
+function gen_test_list_defcore_liberty {
+  gen_test_list_defcore liberty
 }
 
 function exit_msg {
