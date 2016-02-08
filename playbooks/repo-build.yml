@@ -101,3 +101,5 @@
   vars:
     repo_build_dir: "/tmp/openstack-builder"
     repo_build_output: "/tmp/openstack-wheel-output"
+
+- include: repo-sync-check.yml

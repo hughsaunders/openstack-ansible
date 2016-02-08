@@ -17,29 +17,26 @@
 # from within the environment as found from a given mirror_source_host.
 # Currently the mirror source host is set to the Rackspace build servers but
 # could be targeted to wherever you'd like.
-- name: Cloning the upstream repo mirror
-  hosts: repo_all[0]
-  max_fail_percentage: 20
+
+- name: Ensure Repo Containers are Synced
+  hosts: repo_all
+  max_fail_percentage: 0
   gather_facts: false
   user: root
   tasks:
-    - name: Sync the upstream repo(s)
-      shell: |
-        rsync -avzlHAX \
-              {{ mirror_excludes }} \
-              {{ mirror_source_host }}::{{ mirror_name }} {{ mirror_path }}
-      sudo: yes
-      sudo_user: "{{ repo_service_user_name }}"
-  vars:
-    repo_mirror_excludes:
-      - "/repos"
-      - "/mirror"
-      - "/rpcgit"
-      - "/python_packages"
-    mirror_excludes: "{% for i in repo_mirror_excludes %} --exclude={{ i }} {% endfor %}"
-    mirror_path: "{{ repo_service_home_folder }}/repo"
-    mirror_name: "{{ repo_mirror_name|default('openstack_mirror') }}"
-    mirror_source_host: "{{ repo_mirror_source_host|default('rpc-repo.rackspace.com') }}"
-    is_metal: "{{ properties.is_metal|default(false) }}"
+    - name: Count repo files on primary container
+      shell: "find {{repo_service_home_folder}}/repo |wc -l"
+      register: source_repo_count
+      when:
+        - groups['repo_all'] | length > 1
+        - inventory_hostname == groups['repo_all'][0]
 
-- include: repo-sync-check.yml
+    - name: Count repo files on slave containers
+      shell: "find {{repo_service_home_folder}}/repo |wc -l"
+      register: slave_repo_count
+      when:
+        - groups['repo_all'] | length > 1
+        - inventory_hostname != groups['repo_all'][0]
+      until: slave_repo_count.stdout == hostvars[groups['repo_all'][0]]['source_repo_count'].stdout
+      retries: 120
+      delay: 10
