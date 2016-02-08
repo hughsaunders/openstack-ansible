@@ -41,3 +41,26 @@
     mirror_name: "{{ repo_mirror_name|default('openstack_mirror') }}"
     mirror_source_host: "{{ repo_mirror_source_host|default('rpc-repo.rackspace.com') }}"
     is_metal: "{{ properties.is_metal|default(false) }}"
+
+- name: Ensure Repo Containers are Synced
+  hosts: repo_all
+  max_fail_percentage: 0
+  gather_facts: false
+  user: root
+  tasks:
+    - name: Count repo files on primary container
+      shell: "find {{repo_service_home_folder}}/repo |wc -l"
+      register: source_repo_count
+      when:
+        - groups['repo_all'] | length > 1
+        - inventory_hostname == groups['repo_all'][0]
+
+    - name: Count repo files on slave containers
+      shell: "find {{repo_service_home_folder}}/repo |wc -l"
+      register: slave_repo_count
+      when:
+        - groups['repo_all'] | length > 1
+        - inventory_hostname != groups['repo_all'][0]
+      until: slave_repo_count.stdout == hostvars[groups['repo_all'][0]]['source_repo_count'].stdout
+      retries: 120
+      delay: 10
