@@ -29,6 +29,20 @@
     - tempest-install
     - tempest-pip-packages
 
+# NOTE(hughsaunders): The tempest venv is supplied in an archive with no top
+# level directory. It is unarchived directly into the tempest git checkout.
+# During upgrade if the same tempest sha is used, then the new archive is
+# expanded over the existing one, not entirely replacing it, possibly leading
+# to an inconsistent state (libs being replaced with older versions for
+# example). Because the venv doesn't have a top level directory, it is easier
+# to remove and reclone the entire repo to ensure that the venv within the
+# repo is consistent.
+
+# TODO(hughsaunders): replace "||:" with "args: removes:" when using
+# ansible >=2
+- name: Backup tempest dir
+  shell: "mv {{tempest_git_dest}} {{tempest_git_dest}}.$(date '+%Y-%m-%d_%H:%M')||:"
+
 - name: Get tempest from git
   git:
     repo: "{{ tempest_git_repo }}"
